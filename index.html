@@ -917,12 +917,14 @@
       width: 100%;
       min-height: 54px;
       padding: 14px 18px;
+      border: 0;
       border-radius: 9px;
       color: #fff;
       background: var(--green);
       font-weight: 800;
       text-align: center;
       text-decoration: none;
+      cursor: pointer;
     }
     .file-ready-status { margin: 14px 0 0; color: var(--ink-soft); font-size: 13px; text-align: center; }
     @media (prefers-color-scheme: dark) { .file-ready-save { color: #0b1813; } }
@@ -1165,7 +1167,7 @@
       <p id="fileReadyType" class="file-ready-type"></p>
       <h2 id="fileReadyTitle" class="file-ready-title"></h2>
       <p id="fileReadyArtist" class="file-ready-artist"></p>
-      <a id="fileReadySave" class="file-ready-save" download>Save to Files</a>
+      <button id="fileReadySave" class="file-ready-save" type="button">Save to Files</button>
       <p id="fileReadyStatus" class="file-ready-status" role="status" aria-live="polite">Your file is ready to save.</p>
     </div>
   </dialog>
@@ -2032,20 +2034,51 @@
     }
 
     let currentFileUrl = '';
+    let currentReadyFile = null;
+    let currentReadySong = null;
 
-    function showFileReadyDialog(song, blob, fileName, isPowerPoint) {
-      const dialog = document.getElementById('fileReadyDialog');
-      const saveLink = document.getElementById('fileReadySave');
+    function canShareFile(file) {
+      if (!file || typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function') return false;
+      try {
+        return navigator.canShare({ files: [file] });
+      } catch (error) {
+        return false;
+      }
+    }
+
+    async function shareReadyFile(file, song) {
+      await navigator.share({
+        files: [file],
+        title: song.titleEn ? `${song.titleAm} (${song.titleEn})` : song.titleAm
+      });
+    }
+
+    function downloadReadyFile(file) {
       if (currentFileUrl) URL.revokeObjectURL(currentFileUrl);
-      currentFileUrl = URL.createObjectURL(blob);
+      currentFileUrl = URL.createObjectURL(file);
+      const link = document.createElement('a');
+      link.href = currentFileUrl;
+      link.download = file.name;
+      link.hidden = true;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    }
+
+    function showFileReadyDialog(song, file, isPowerPoint) {
+      const dialog = document.getElementById('fileReadyDialog');
+      const saveButton = document.getElementById('fileReadySave');
+      currentReadyFile = file;
+      currentReadySong = song;
       document.getElementById('fileReadyType').textContent = isPowerPoint ? 'PowerPoint ready' : 'Word document ready';
       document.getElementById('fileReadyTitle').textContent = song.titleEn ? `${song.titleAm} (${song.titleEn})` : song.titleAm;
       document.getElementById('fileReadyArtist').textContent = song.artistAm;
-      document.getElementById('fileReadyStatus').textContent = 'Your file is ready to save.';
-      saveLink.href = currentFileUrl;
-      saveLink.download = fileName;
+      document.getElementById('fileReadyStatus').textContent = canShareFile(file)
+        ? 'Choose Save to Files in your device menu.'
+        : 'Your file is ready to save.';
+      saveButton.textContent = 'Save to Files';
       if (!dialog.open) dialog.showModal();
-      saveLink.focus();
+      saveButton.focus();
     }
 
     function setExportButtonMessage(button, message) {
@@ -2072,10 +2105,21 @@
       setExportButtonMessage(button, 'እየተዘጋጀ ነው…');
       showFeedback('ፋይሉ እየተዘጋጀ ነው…');
       try {
-        const blob = isPowerPoint ? await loadVerifiedPowerPoint(song) : makeWordDocument(song);
+        const blob = isPowerPoint ? makePowerPoint(song) : makeWordDocument(song);
         const baseName = safeFileName(song.titleEn || song.titleAm);
         const fileName = `${baseName}-Lyrics-${isPowerPoint ? 'PowerPoint.pptx' : 'Word.docx'}`;
-        showFileReadyDialog(song, blob, fileName, isPowerPoint);
+        const file = new File([blob], fileName, { type: blob.type });
+        if (canShareFile(file)) {
+          try {
+            await shareReadyFile(file, song);
+            setExportButtonMessage(button, 'ተጋርቷል');
+            showFeedback('ፋይሉ ተጋርቷል');
+            return;
+          } catch (shareError) {
+            if (shareError && shareError.name === 'AbortError') return;
+          }
+        }
+        showFileReadyDialog(song, file, isPowerPoint);
         setExportButtonMessage(button, 'ተዘጋጅቷል');
         showFeedback('ፋይሉ ተዘጋጅቷል');
       } catch (error) {
@@ -2121,8 +2165,26 @@
     document.getElementById('powerpointLink').addEventListener('click', event => exportSongFile(selectedId, 'pptx', event.currentTarget));
     const fileReadyDialog = document.getElementById('fileReadyDialog');
     document.getElementById('fileReadyClose').addEventListener('click', () => fileReadyDialog.close());
-    document.getElementById('fileReadySave').addEventListener('click', () => {
-      document.getElementById('fileReadyStatus').textContent = 'Your download has started.';
+    document.getElementById('fileReadySave').addEventListener('click', async event => {
+      if (!currentReadyFile || !currentReadySong) return;
+      const saveButton = event.currentTarget;
+      saveButton.disabled = true;
+      try {
+        if (canShareFile(currentReadyFile)) {
+          await shareReadyFile(currentReadyFile, currentReadySong);
+          document.getElementById('fileReadyStatus').textContent = 'The file was sent to your device menu.';
+        } else {
+          downloadReadyFile(currentReadyFile);
+          document.getElementById('fileReadyStatus').textContent = 'Your download has started.';
+        }
+      } catch (error) {
+        if (!error || error.name !== 'AbortError') {
+          downloadReadyFile(currentReadyFile);
+          document.getElementById('fileReadyStatus').textContent = 'Your download has started.';
+        }
+      } finally {
+        saveButton.disabled = false;
+      }
     });
     fileReadyDialog.addEventListener('click', event => {
       if (event.target === fileReadyDialog) fileReadyDialog.close();
