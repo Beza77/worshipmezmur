@@ -12,6 +12,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap" rel="stylesheet" />
   <title>Amharic Songs Master List</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Worship Mezmur" />
+  <meta property="og:title" content="Worship Mezmur — Amharic Gospel Songs" />
+  <meta property="og:description" content="Amharic gospel songs with lyrics, videos, and PowerPoint downloads." />
+  <meta property="og:image" content="https://worshipmezmur.com/assets/og-cover.png" />
+  <meta property="og:url" content="https://worshipmezmur.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Worship Mezmur — Amharic Gospel Songs" />
+  <meta name="twitter:description" content="Amharic gospel songs with lyrics, videos, and PowerPoint downloads." />
+  <meta name="twitter:image" content="https://worshipmezmur.com/assets/og-cover.png" />
   <style>
     :root {
       color-scheme: light dark;
@@ -1918,8 +1928,7 @@
     async function shareSongLink(songId) {
       const song = songs.find(item => item.id === songId);
       if (!song) return;
-      const encodedSongKey = encodeURIComponent(song.shareKey);
-      const url = `${publicPageUrl}?song=${encodedSongKey}`;
+      const url = `${publicPageUrl}s/${song.id}.html`;
       if (navigator.share) {
         try {
           await navigator.share({
