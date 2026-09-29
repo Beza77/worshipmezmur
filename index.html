@@ -751,14 +751,6 @@
     .player-launch-copy strong, .player-launch-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .player-launch-copy strong { font-size: 13px; }
     .player-launch-copy span { opacity: .82; font-size: 11px; font-weight: 500; }
-    .youtube-external {
-      flex: 0 0 auto;
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 700;
-      text-decoration-thickness: 1px;
-      text-underline-offset: 3px;
-    }
     .player-frame-wrap { padding: 0 22px 18px; }
     .player-frame-wrap[hidden] { display: none; }
     .player-frame {
@@ -1130,7 +1122,6 @@
       .player-bar { align-items: stretch; padding: 12px 16px; }
       .player-launch { grid-template-columns: 40px minmax(0, 1fr); }
       .player-launch-icon { width: 40px; }
-      .youtube-external { display: inline-flex; align-items: center; }
       .player-frame-wrap { padding: 0 16px 14px; }
       .versions-head { padding: 12px 16px; }
       .version-list { padding: 0 16px 14px; }
@@ -1228,7 +1219,6 @@
               <span class="player-launch-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 11 7-11 7Z"></path></svg></span>
               <span class="player-launch-copy"><strong>እዚሁ ያጫውቱ</strong><span id="playerSelection">ዋናው መዝሙር</span></span>
             </button>
-            <a id="openYouTube" class="youtube-external" href="https://www.youtube.com/watch?v=TDx5z3sU4P4" target="_blank" rel="noopener noreferrer">YouTube ላይ ይክፈቱ ↗</a>
           </div>
           <div id="playerFrameWrap" class="player-frame-wrap" hidden>
             <iframe id="youtubePlayer" class="player-frame" title="የYouTube መዝሙር ማጫወቻ" loading="eager" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="origin" allowfullscreen></iframe>
@@ -1246,7 +1236,7 @@
           <div id="versionList" class="version-list"></div>
         </details>
         <div class="lyrics-scroll" id="lyricsScroll">
-          <h3 id="lyricsHeading">የጋራ ግጥም</h3>
+          <h3 id="lyricsHeading" hidden></h3>
           <div id="lyricsBody"></div>
         </div>
       </aside>
@@ -1365,7 +1355,7 @@
     const playerFrameWrap = document.getElementById('playerFrameWrap');
     const youtubePlayer = document.getElementById('youtubePlayer');
     const playInApp = document.getElementById('playInApp');
-    const publicPageUrl = 'https://muse.ai/s/amharic-songs-master-list-x0xi6am7csxrpp';
+    const publicPageUrl = 'https://worshipmezmur.com/';
     const pageSize = 24;
     const sortMode = 'album';
     let visibleLimit = pageSize;
@@ -1763,7 +1753,6 @@
       const video = song.videos[index];
       document.getElementById('playerSelection').textContent = video.label;
       document.getElementById('playerNow').textContent = video.label;
-      document.getElementById('openYouTube').href = video.href;
       document.querySelectorAll('.version-link').forEach((button, buttonIndex) => {
         const isActive = buttonIndex === activeVideoIndex;
         button.classList.toggle('active', isActive);
@@ -1826,7 +1815,9 @@
         button.addEventListener('click', () => setActiveVideo(Number(button.dataset.videoIndex), true));
       });
       if (hasVideo) setActiveVideo(0, false);
-      document.getElementById('lyricsHeading').textContent = hasLyrics ? 'የጋራ ግጥም' : 'የመዝሙሩ ሁኔታ';
+      const lyricsHeading = document.getElementById('lyricsHeading');
+      lyricsHeading.hidden = hasLyrics;
+      lyricsHeading.textContent = hasLyrics ? '' : 'የመዝሙሩ ሁኔታ';
       document.getElementById('lyricsBody').innerHTML = hasLyrics
         ? `<div class="lyrics-text">${esc(song.lyrics.trim())}</div>`
         : hasVideo
