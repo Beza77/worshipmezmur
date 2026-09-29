@@ -2007,7 +2007,7 @@
       const song = songs.find(item => item.id === songId);
       if (!song) return;
       const encodedSongKey = encodeURIComponent(song.shareKey);
-      const url = `${publicPageUrl}?song=${encodedSongKey}#song=${encodedSongKey}`;
+      const url = `${publicPageUrl}?song=${encodedSongKey}`;
       if (navigator.share) {
         try {
           await navigator.share({
@@ -2321,7 +2321,7 @@
       setExportButtonMessage(button, 'እየተዘጋጀ ነው…');
       showFeedback('ፋይሉ እየተዘጋጀ ነው…');
       try {
-        const blob = isPowerPoint ? makePowerPoint(song) : makeWordDocument(song);
+        const blob = isPowerPoint ? await loadVerifiedPowerPoint(song) : makeWordDocument(song);
         const baseName = safeFileName(song.titleEn || song.titleAm);
         const fileName = `${baseName}-Lyrics-${isPowerPoint ? 'PowerPoint.pptx' : 'Word.docx'}`;
         const file = new File([blob], fileName, { type: blob.type });
