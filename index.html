@@ -326,10 +326,74 @@
       margin-bottom: 16px;
     }
     h2 { margin: 0; font-size: 23px; line-height: 1.2; }
-    .result-count { margin: 8px 2px 14px; color: var(--ink-soft); font-size: 13px; text-align: right; white-space: nowrap; }
+    .catalog-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 12px 0 0;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-raised);
+    }
+    .update-note { margin: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.45; }
+    .update-note strong { color: var(--ink); }
+    .content-toggle {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 9px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .content-toggle input {
+      appearance: none;
+      position: relative;
+      width: 38px;
+      height: 22px;
+      flex: 0 0 auto;
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: background-color .18s ease, border-color .18s ease;
+    }
+    .content-toggle input::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--ink-soft);
+      transition: transform .18s ease, background-color .18s ease;
+    }
+    .content-toggle input:checked { border-color: var(--green); background: var(--green); }
+    .content-toggle input:checked::after { background: var(--surface); transform: translateX(16px); }
+    .artist-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .artist-stats[hidden] { display: none; }
+    .artist-stat {
+      min-width: 0;
+      padding: 12px 13px;
+      border-radius: 10px;
+      background: var(--green-faint);
+    }
+    .artist-stat strong { display: block; color: var(--green); font-family: var(--font-en); font-size: 21px; line-height: 1; }
+    .artist-stat span { display: block; margin-top: 5px; color: var(--ink-soft); font-size: 10px; line-height: 1.25; }
+    .result-count { margin: 8px 2px 14px; color: var(--ink-soft); font-size: 13px; text-align: right; }
     .search-tools {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(170px, .42fr);
+      grid-template-columns: minmax(0, 1fr) repeat(2, minmax(170px, .42fr));
       gap: 10px;
       margin-bottom: 0;
     }
@@ -402,7 +466,8 @@
       pointer-events: none;
     }
     #search,
-    #artistFilter {
+    #artistFilter,
+    #themeFilter {
       width: 100%;
       min-height: 50px;
       border: 1px solid var(--line);
@@ -413,8 +478,9 @@
     }
     #search { padding: 11px 16px 11px 48px; }
     #search::placeholder { color: var(--ink-soft); opacity: .85; }
-    .artist-filter-wrap { position: relative; display: block; }
-    #artistFilter {
+    .select-filter-wrap { position: relative; display: block; }
+    #artistFilter,
+    #themeFilter {
       appearance: none;
       padding: 11px 42px 11px 14px;
       background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
@@ -547,6 +613,21 @@
     .romanized { margin: 2px 0 6px; color: var(--green); font-family: var(--font-en); font-size: 16px; }
     .meta { display: flex; flex-wrap: wrap; gap: 3px 8px; color: var(--ink-soft); font-size: 12px; }
     .meta span:not(:last-child)::after { content: "·"; margin-left: 8px; }
+    .theme-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+    .theme-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border: 1px solid color-mix(in srgb, var(--green) 28%, var(--line));
+      border-radius: 999px;
+      color: var(--green);
+      background: var(--green-faint);
+      font-family: var(--font-en);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
     .lyrics-match {
       margin: 10px 0 0;
       padding: 9px 11px;
@@ -740,6 +821,7 @@
     .lyrics-cover img { width: 100%; height: 100%; display: block; object-fit: cover; }
     .lyrics-title { margin: 0 0 3px; font-size: 29px; line-height: 1.2; }
     .lyrics-sub { margin: 0; color: var(--green); font-family: var(--font-en); font-size: 17px; }
+    .lyrics-sub:empty { display: none; }
     .lyrics-meta { margin: 8px 0 0; color: var(--ink-soft); font-size: 12px; }
     .close {
       display: none;
@@ -1002,6 +1084,9 @@
       .review-note { grid-column: 2; }
       .workspace { padding-top: 2px; }
       .search-tools { grid-template-columns: minmax(0, 1fr); }
+      .catalog-status { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .content-toggle { width: auto; }
+      .artist-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .artist-directory { grid-template-columns: minmax(0, 1fr); }
       .sort-tools { align-items: stretch; flex-direction: column; gap: 7px; }
       .sort-mode { width: 100%; }
@@ -1082,13 +1167,26 @@
             <span id="searchLabel" class="sr-only">መዝሙር ወይም ግጥም ይፈልጉ</span>
             <input id="search" type="search" placeholder="መዝሙር ይፈልጉ…" autocomplete="off" />
           </label>
-          <label class="artist-filter-wrap">
+          <label class="select-filter-wrap">
             <span class="sr-only">በዘማሪ ይምረጡ</span>
             <select id="artistFilter" aria-label="በዘማሪ ይምረጡ">
               <option value="">ሁሉም ዘማሪዎች</option>
             </select>
           </label>
+          <label class="select-filter-wrap">
+            <span class="sr-only">በጭብጥ ይምረጡ</span>
+            <select id="themeFilter" aria-label="በጭብጥ ይምረጡ">
+              <option value="">ሁሉም ጭብጦች · All themes</option>
+            </select>
+          </label>
         </div>
+        <div class="catalog-status">
+          <p class="update-note"><strong>ማሳሰቢያ፦</strong> ግጥሞቹ በመግባት ላይ ናቸው። እባክዎ በትዕግሥት ይጠብቁ። <span lang="en">Lyrics are being updated—thank you for your patience.</span></p>
+          <label class="content-toggle" for="completeOnly">
+            <input id="completeOnly" type="checkbox" aria-label="ቪዲዮ ወይም ግጥም የሌላቸውን ደብቅ" />
+          </label>
+        </div>
+        <div id="artistStats" class="artist-stats" aria-live="polite" hidden></div>
         <div id="resultCount" class="result-count" aria-live="polite"></div>
         <div id="songList" class="song-list"></div>
         <button id="loadMore" class="load-more" type="button" hidden></button>
@@ -1221,7 +1319,7 @@
         primaryAlbum,
         albumTrack: trackVideo ? Number(trackVideo.trackNo) : null,
         track: videos[0] && videos[0].trackNo !== null && videos[0].trackNo !== undefined ? String(videos[0].trackNo) : '',
-        theme: albums.join(' '),
+        themes: Array.isArray(entry.themes) ? entry.themes.filter(Boolean).slice(0, 3) : [],
         thumb: videos[0] ? videos[0].thumb : '',
         lyrics: formatLyricsText(entry.lyrics),
         noVideo: Boolean(entry.no_video),
@@ -1254,6 +1352,9 @@
     const emptyEl = document.getElementById('empty');
     const searchEl = document.getElementById('search');
     const artistFilter = document.getElementById('artistFilter');
+    const themeFilter = document.getElementById('themeFilter');
+    const completeOnly = document.getElementById('completeOnly');
+    const artistStats = document.getElementById('artistStats');
     const loadMore = document.getElementById('loadMore');
     const resultCount = document.getElementById('resultCount');
     const catalogSongCountText = `${songs.length.toLocaleString()} መዝሙሮች`;
@@ -1266,7 +1367,7 @@
     const playInApp = document.getElementById('playInApp');
     const publicPageUrl = 'https://muse.ai/s/amharic-songs-master-list-x0xi6am7csxrpp';
     const pageSize = 24;
-    const sortMode = 'title';
+    const sortMode = 'album';
     let visibleLimit = pageSize;
     let selectedId = songs[0].id;
     let sharedSongId = null;
@@ -1276,6 +1377,11 @@
 
     function esc(value) {
       return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
+    }
+
+    function displaySongTitle(song) {
+      const romanized = song.titleEn || song.titleAm;
+      return song.titleEn && song.titleAm ? `${romanized} (${song.titleAm})` : romanized;
     }
 
     function normalizedText(value) {
@@ -1383,6 +1489,27 @@
       return `assets/docx/${baseName}-Lyrics-Word.docx`;
     }
 
+    function renderArtistStats() {
+      const selectedArtist = normalizedText(artistFilter.value);
+      if (!selectedArtist) {
+        artistStats.hidden = true;
+        artistStats.innerHTML = '';
+        return;
+      }
+      const artistSongs = songs.filter(song => artistSearchText(song) === selectedArtist);
+      const albums = new Set(artistSongs.flatMap(song => song.albums).map(normalizedText).filter(Boolean));
+      const withLyrics = artistSongs.filter(song => song.lyrics.trim()).length;
+      const withVideo = artistSongs.filter(song => song.videos.length).length;
+      const lyricsPercent = artistSongs.length ? Math.round((withLyrics / artistSongs.length) * 100) : 0;
+      const videoPercent = artistSongs.length ? Math.round((withVideo / artistSongs.length) * 100) : 0;
+      artistStats.innerHTML = `
+        <div class="artist-stat"><strong>${artistSongs.length.toLocaleString()}</strong><span>መዝሙሮች</span></div>
+        <div class="artist-stat"><strong>${albums.size.toLocaleString()}</strong><span>አልበሞች</span></div>
+        <div class="artist-stat"><strong>${lyricsPercent}%</strong><span>ግጥም ያላቸው</span></div>
+        <div class="artist-stat"><strong>${videoPercent}%</strong><span>ቪዲዮ ያላቸው</span></div>`;
+      artistStats.hidden = false;
+    }
+
     async function loadVerifiedPowerPoint(song) {
       const response = await fetch(staticExportUrl(song, 'pptx'));
       if (!response.ok) throw new Error('PowerPoint file unavailable');
@@ -1397,19 +1524,28 @@
     function renderList(query = '') {
       const normalized = normalizedText(query);
       const selectedArtist = normalizedText(artistFilter.value);
-      const sourceSongs = sharedSongId && !normalized && !selectedArtist
+      const selectedTheme = normalizedText(themeFilter.value);
+      const sourceSongs = sharedSongId && !normalized && !selectedArtist && !selectedTheme
         ? songs.filter(song => song.id === sharedSongId)
         : songs;
       const filtered = sortSongsForDisplay(sourceSongs.filter(song => {
         const matchesArtist = !selectedArtist || artistSearchText(song) === selectedArtist;
+        const matchesTheme = !selectedTheme || song.themes.some(theme => normalizedText(theme) === selectedTheme);
         const matchesSearch = !normalized
           || songSearchText(song).includes(normalized)
           || artistSearchText(song).includes(normalized)
           || lyricsSearchText(song).includes(normalized);
-        return matchesArtist && matchesSearch;
+        const hasCompleteContent = !completeOnly.checked || (song.videos.length > 0 && Boolean(song.lyrics.trim()));
+        return matchesArtist && matchesTheme && matchesSearch && hasCompleteContent;
       }));
       const visibleSongs = filtered.slice(0, visibleLimit);
-      resultCount.textContent = catalogSongCountText;
+      const matchingArtists = new Set(filtered.map(song => normalizedText(song.artistAm)).filter(Boolean)).size;
+      const themeLabel = themeFilter.value ? ` · ${themeFilter.value}` : '';
+      const filteredLabel = completeOnly.checked ? ' · ግጥምና ቪዲዮ ያላቸው ብቻ' : '';
+      resultCount.textContent = selectedArtist
+        ? `${filtered.length.toLocaleString()} መዝሙሮች ታይተዋል${themeLabel}${filteredLabel}`
+        : `${filtered.length.toLocaleString()} መዝሙሮች · ${matchingArtists.toLocaleString()} ዘማሪዎች${themeLabel}${filteredLabel}`;
+      renderArtistStats();
       emptyEl.classList.toggle('visible', filtered.length === 0);
       listEl.className = 'song-list';
       const remaining = Math.max(0, filtered.length - visibleSongs.length);
@@ -1433,9 +1569,9 @@
             <span class="play" aria-hidden="true">${icons.play}</span>
           </button>` : `<div class="thumb-link" aria-hidden="true"><span class="song-fallback">${icons.lyrics}</span></div>`}
           <div class="song-copy">
-            <div class="title-line"><h3 class="song-title${hasLyrics ? '' : ' missing-lyrics'}"${hasLyrics ? '' : ' aria-label="' + esc(song.titleAm) + '፣ ግጥም የለም"'}>${esc(song.titleAm)}</h3>${song.track ? `<span class="track">#${esc(song.track)}</span>` : ''}</div>
-            ${song.titleEn ? `<p class="romanized">${esc(song.titleEn)}</p>` : ''}
+            <div class="title-line"><h3 class="song-title${hasLyrics ? '' : ' missing-lyrics'}"${hasLyrics ? '' : ' aria-label="' + esc(displaySongTitle(song)) + '፣ ግጥም የለም"'}>${esc(displaySongTitle(song))}</h3>${song.track ? `<span class="track">#${esc(song.track)}</span>` : ''}</div>
             <div class="meta"><span>${esc(song.artistAm)}</span><span>${esc(song.album)}</span><span>${hasVideo ? `${song.videos.length} YouTube ${song.videos.length === 1 ? 'ሊንክ' : 'ሊንኮች'}` : 'YouTube ሊንክ የለም'}</span></div>
+            ${song.themes.length ? `<div class="theme-tags" aria-label="Themes">${song.themes.map(theme => `<span class="theme-tag">${esc(theme)}</span>`).join('')}</div>` : ''}
             ${lyricsSnippet ? `<p class="lyrics-match">${esc(lyricsSnippet)}</p>` : ''}
             <div class="card-actions">
               <button class="action primary open-song" type="button" data-id="${esc(song.id)}">${icons.lyrics} ግጥም</button>
@@ -1573,8 +1709,8 @@
       lyricsCover.innerHTML = song.thumb
         ? `<img id="lyricsThumb" src="${esc(song.thumb)}" alt="${esc(song.titleAm)} የYouTube ቪዲዮ ምስል" decoding="async" referrerpolicy="no-referrer" data-youtube-thumb="true" />`
         : `<span class="song-fallback" aria-hidden="true">${hasVideo ? icons.youtube : icons.lyrics}</span>`;
-      document.getElementById('lyricsTitle').textContent = song.titleAm;
-      document.getElementById('lyricsSub').textContent = song.titleEn;
+      document.getElementById('lyricsTitle').textContent = displaySongTitle(song);
+      document.getElementById('lyricsSub').textContent = '';
       const versionSummary = !hasVideo
         ? 'YouTube ሊንክ የለም'
         : song.videos.length === 1
@@ -1821,6 +1957,7 @@
       if (!song) return false;
       searchEl.value = '';
       artistFilter.value = '';
+      themeFilter.value = '';
       sharedSongId = song.id;
       visibleLimit = pageSize;
       selectSong(song.id);
@@ -2134,6 +2271,9 @@
     const artistNames = Array.from(new Set(songs.map(song => song.artistAm).filter(Boolean)))
       .sort((a, b) => a.localeCompare(b));
     artistFilter.insertAdjacentHTML('beforeend', artistNames.map(artist => `<option value="${esc(artist)}">${esc(artist)}</option>`).join(''));
+    const themeNames = Array.from(new Set(songs.flatMap(song => song.themes)))
+      .sort((a, b) => a.localeCompare(b));
+    themeFilter.insertAdjacentHTML('beforeend', themeNames.map(theme => `<option value="${esc(theme)}">Songs about ${esc(theme)}</option>`).join(''));
 
     searchEl.addEventListener('input', event => {
       sharedSongId = null;
@@ -2142,6 +2282,18 @@
       renderList(event.target.value);
     });
     artistFilter.addEventListener('change', () => {
+      sharedSongId = null;
+      visibleLimit = pageSize;
+      inlinePlayingId = null;
+      renderList(searchEl.value);
+    });
+    themeFilter.addEventListener('change', () => {
+      sharedSongId = null;
+      visibleLimit = pageSize;
+      inlinePlayingId = null;
+      renderList(searchEl.value);
+    });
+    completeOnly.addEventListener('change', () => {
       sharedSongId = null;
       visibleLimit = pageSize;
       inlinePlayingId = null;
