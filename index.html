@@ -1369,7 +1369,7 @@
     const pageSize = 24;
     const sortMode = 'album';
     let visibleLimit = pageSize;
-    let selectedId = songs[0].id;
+    let selectedId = null;
     let sharedSongId = null;
     let activeVideoIndex = 0;
     let inlinePlayingId = null;
@@ -2439,8 +2439,10 @@
     }, { once: true });
 
     if (!openSongFromHash()) {
+      const firstDisplayedSong = sortSongsForDisplay(songs)[0];
+      selectedId = firstDisplayedSong ? firstDisplayedSong.id : songs[0].id;
       renderList();
-      selectSong(songs[0].id);
+      selectSong(selectedId);
     }
   </script>
 </body>
