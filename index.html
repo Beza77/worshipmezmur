@@ -1388,6 +1388,91 @@
       return String(value || '').replace(/፡/g, ' ').replace(/\s+/g, ' ').trim().toLocaleLowerCase();
     }
 
+    const THEME_SEARCH_SYNONYMS = {
+      'Comfort': [
+        'comfort', 'comforting', 'consolation', 'encouragement', 'encouraging',
+        'metsnanat', 'metsenana', 'matsnanat', 'መጽናናት', 'ማጽናናት', 'መጽናኛ'
+      ],
+      'Dedication': [
+        'dedication', 'dedicated', 'consecration', 'consecrated', 'commitment', 'surrender',
+        'mesetet', 'rasin mesetet', 'kurtenyet', 'መሰጠት', 'ራስን መስጠት', 'ቁርጠኝነት'
+      ],
+      'Easter': [
+        'easter', 'resurrection', 'fasika', 'fasica', 'tinsae', 'tinsay',
+        'ፋሲካ', 'ትንሣኤ', 'ትንሳኤ'
+      ],
+      'Faith': [
+        'faith', 'faithful', 'trust', 'believing', 'emnet', 'mamen', 'metamen',
+        'እምነት', 'ማመን', 'መታመን'
+      ],
+      'Grace': [
+        'grace', 'divine grace', 'favor', 'favour', 'tsega', 'ts ega', 'sega',
+        'ጸጋ', 'ፀጋ'
+      ],
+      'Holy Spirit': [
+        'holy spirit', 'holy ghost', 'menfes kidus', 'menfes qidus', 'menfes kidous',
+        'መንፈስ ቅዱስ'
+      ],
+      'Hope': [
+        'hope', 'hopeful', 'tesfa', 'tespha', 'ተስፋ'
+      ],
+      'Love': [
+        'love', 'loving', 'fikir', 'fiqir', 'feker', 'ፍቅር'
+      ],
+      'Praise': [
+        'praise', 'praises', 'praising', 'song of praise', 'songs of praise', 'praise song', 'praise songs',
+        'misgana', 'mesgana', 'yemisgana', 'yemisgana mezmur', 'የምስጋና መዝሙር', 'ምስጋና'
+      ],
+      'Prayer': [
+        'prayer', 'prayers', 'praying', 'pray', 'tselot', 'ts elot', 'selot',
+        'ጸሎት', 'ፀሎት'
+      ],
+      'Repentance': [
+        'repentance', 'repent', 'repenting', 'nisha', 'nisaha', 'nesha',
+        'ንስሐ', 'ንስሃ'
+      ],
+      'Thanksgiving': [
+        'thanksgiving', 'giving thanks', 'thanks', 'thankful', 'gratitude', 'grateful',
+        'mamesgen', 'ameseginalehu', 'mesegana mesetet', 'ማመስገን', 'አመሰግናለሁ', 'ምስጋና መስጠት'
+      ],
+      'Victory': [
+        'victory', 'victorious', 'triumph', 'overcoming', 'overcomer', 'dil', 'dil mezmur',
+        'ድል', 'የድል መዝሙር'
+      ],
+      'Worship': [
+        'worship', 'worshiping', 'worshipping', 'adoration', 'amilko', 'amliko', 'segdet',
+        'አምልኮ', 'አምልኮት', 'ስግደት'
+      ],
+      'Christmas': [
+        'christmas', 'nativity', 'christmas song', 'christmas songs', 'lidet', 'gena mezmur',
+        'ልደት', 'የገና መዝሙር'
+      ]
+    };
+
+    function naturalQueryText(value) {
+      return String(value || '')
+        .normalize('NFKC')
+        .toLocaleLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function naturalThemesForQuery(query) {
+      const normalized = naturalQueryText(query);
+      if (!normalized) return new Set();
+      const paddedQuery = ` ${normalized} `;
+      const matches = new Set();
+      Object.entries(THEME_SEARCH_SYNONYMS).forEach(([theme, synonyms]) => {
+        const aliases = [theme, ...synonyms];
+        if (aliases.some(alias => {
+          const normalizedAlias = naturalQueryText(alias);
+          return normalizedAlias && paddedQuery.includes(` ${normalizedAlias} `);
+        })) matches.add(theme);
+      });
+      return matches;
+    }
+
     function songSearchText(song) {
       return normalizedText([song.titleAm, song.titleEn].join(' '));
     }
@@ -1523,6 +1608,7 @@
 
     function renderList(query = '') {
       const normalized = normalizedText(query);
+      const naturalThemes = naturalThemesForQuery(query);
       const selectedArtist = normalizedText(artistFilter.value);
       const selectedTheme = normalizedText(themeFilter.value);
       const sourceSongs = sharedSongId && !normalized && !selectedArtist && !selectedTheme
@@ -1531,10 +1617,12 @@
       const filtered = sortSongsForDisplay(sourceSongs.filter(song => {
         const matchesArtist = !selectedArtist || artistSearchText(song) === selectedArtist;
         const matchesTheme = !selectedTheme || song.themes.some(theme => normalizedText(theme) === selectedTheme);
+        const matchesNaturalTheme = naturalThemes.size > 0 && song.themes.some(theme => naturalThemes.has(theme));
         const matchesSearch = !normalized
           || songSearchText(song).includes(normalized)
           || artistSearchText(song).includes(normalized)
-          || lyricsSearchText(song).includes(normalized);
+          || lyricsSearchText(song).includes(normalized)
+          || matchesNaturalTheme;
         const hasCompleteContent = !completeOnly.checked || (song.videos.length > 0 && Boolean(song.lyrics.trim()));
         return matchesArtist && matchesTheme && matchesSearch && hasCompleteContent;
       }));
