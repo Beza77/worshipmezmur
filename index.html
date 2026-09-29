@@ -1214,6 +1214,10 @@
         .trim();
     }
 
+    function lyricsForOutput(value) {
+      return String(value || '').replace(/[()]/g, '');
+    }
+
     const songs = window.CATALOG_DATA.map((entry, index) => {
       const titleAm = entry.title_am || entry.title || `Untitled ${index + 1}`;
       const titleEn = entry.title_am ? (entry.title || '') : '';
@@ -1431,7 +1435,7 @@
         if (matchIndex <= lineEnd) break;
         cursor = lineEnd + 1;
       }
-      return lines.slice(lineIndex, lineIndex + 2).join(' · ');
+      return lyricsForOutput(lines.slice(lineIndex, lineIndex + 2).join(' · '));
     }
 
     function artistGroups() {
@@ -1727,7 +1731,7 @@
       lyricsHeading.hidden = hasLyrics;
       lyricsHeading.textContent = hasLyrics ? '' : 'የመዝሙሩ ሁኔታ';
       document.getElementById('lyricsBody').innerHTML = hasLyrics
-        ? `<div class="lyrics-text">${esc(song.lyrics.trim())}</div>`
+        ? `<div class="lyrics-text">${esc(lyricsForOutput(song.lyrics).trim())}</div>`
         : hasVideo
           ? '<div class="lyrics-missing"><strong>ግጥሙ ገና አልተጨመረም</strong><span>የYouTube መዝሙሩን ከላይ ማጫወት ይችላሉ።</span></div>'
           : '<div class="lyrics-missing"><strong>ግጥሙ ገና አልተጨመረም</strong><span>የYouTube ሊንክም ገና አልተጨመረለትም።</span></div>';
@@ -1749,7 +1753,7 @@
 
     function selectedLyricsText() {
       const song = songs.find(item => item.id === selectedId);
-      return song ? `${song.titleAm} (${song.titleEn})\n\n${song.lyrics.trim()}` : '';
+      return song ? `${song.titleAm} (${song.titleEn})\n\n${lyricsForOutput(song.lyrics).trim()}` : '';
     }
 
     function legacyCopyText(text) {
@@ -1800,7 +1804,7 @@
 
     function songShareText(song) {
       const album = song.album && song.album !== '—' ? `\n${song.album}` : '';
-      const lyrics = song.lyrics.trim() || 'ግጥሙ ገና አልተጨመረም';
+      const lyrics = lyricsForOutput(song.lyrics).trim() || 'ግጥሙ ገና አልተጨመረም';
       return `${song.titleAm}${song.titleEn ? ` (${song.titleEn})` : ''}\n${song.artistAm}${album}\n\n${lyrics}`;
     }
 
@@ -1851,7 +1855,7 @@
       let height = 0;
       while (lyricSize >= 22) {
         context.font = `500 ${lyricSize}px ${family}`;
-        lyricLines = song.lyrics.trim().split('\n').flatMap(line => wrapCanvasLine(context, line, contentWidth));
+        lyricLines = lyricsForOutput(song.lyrics).trim().split('\n').flatMap(line => wrapCanvasLine(context, line, contentWidth));
         lineHeight = Math.round(lyricSize * 1.55);
         height = 360 + lyricLines.length * lineHeight + 120;
         if (height <= 11800) break;
@@ -1994,7 +1998,7 @@
       if (!song.lyrics.trim()) {
         return [[song.titleAm, song.artistAm, 'ግጥሙ ገና አልተጨመረም']];
       }
-      return song.lyrics.trim().split(/\n\s*\n/).flatMap(stanza => {
+      return lyricsForOutput(song.lyrics).trim().split(/\n\s*\n/).flatMap(stanza => {
         const lines = stanza.split('\n').map(line => line.trim()).filter(Boolean);
         const pages = [];
         for (let index = 0; index < lines.length; index += 7) pages.push(lines.slice(index, index + 7));
@@ -2128,10 +2132,11 @@
     }
 
     function makeWordDocument(song) {
-      const stanzas = song.lyrics.trim().split(/\n\s*\n/).map(stanza => stanza.split('\n').map(line => line.trim()).filter(Boolean));
+      const outputLyrics = lyricsForOutput(song.lyrics).trim();
+      const stanzas = outputLyrics.split(/\n\s*\n/).map(stanza => stanza.split('\n').map(line => line.trim()).filter(Boolean));
       const title = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="120"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Nyala" w:hAnsi="Nyala" w:eastAsia="Nyala" w:cs="Nyala"/><w:lang w:val="am-ET"/><w:b/><w:color w:val="000000"/><w:sz w:val="36"/><w:szCs w:val="36"/></w:rPr><w:t>${xmlEscape(song.titleAm)} (${xmlEscape(song.titleEn)})</w:t></w:r></w:p>`;
       const byline = `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="360"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Nyala" w:hAnsi="Nyala" w:eastAsia="Nyala" w:cs="Nyala"/><w:lang w:val="am-ET"/><w:color w:val="555555"/><w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr><w:t>${xmlEscape(song.artistAm)} · ${xmlEscape(song.album)}</w:t></w:r></w:p>`;
-      const paragraphs = song.lyrics.trim()
+      const paragraphs = outputLyrics
         ? stanzas.map(lines => lines.map((line, lineIndex) => `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="0" w:after="${lineIndex === lines.length - 1 ? 240 : 40}" w:line="360" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Nyala" w:hAnsi="Nyala" w:eastAsia="Nyala" w:cs="Nyala"/><w:lang w:val="am-ET"/><w:color w:val="000000"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t xml:space="preserve">${xmlEscape(line)}</w:t></w:r></w:p>`).join('')).join('')
         : `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="240"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Nyala" w:hAnsi="Nyala" w:eastAsia="Nyala" w:cs="Nyala"/><w:lang w:val="am-ET"/><w:color w:val="555555"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>ግጥሙ ገና አልተጨመረም</w:t></w:r></w:p>`;
       const entries = [
