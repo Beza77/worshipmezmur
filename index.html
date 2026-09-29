@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://img.youtube.com https://i.ytimg.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://img.youtube.com https://i.ytimg.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://worshipmezmur.com; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <link rel="icon" href="data:," />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -716,42 +716,7 @@
       border-bottom: 1px solid var(--line);
       background: var(--surface);
     }
-    .player-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 13px 22px;
-    }
-    .player-launch {
-      display: grid;
-      grid-template-columns: 44px minmax(0, 1fr);
-      gap: 11px;
-      align-items: center;
-      min-width: 0;
-      flex: 1 1 auto;
-      padding: 7px 10px 7px 7px;
-      border: 1px solid var(--green);
-      border-radius: 7px;
-      color: #fff;
-      background: var(--green);
-      text-align: left;
-      cursor: pointer;
-    }
-    .player-launch-icon {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 32px;
-      border-radius: 5px;
-      color: var(--green);
-      background: #fff;
-    }
-    .player-launch-icon svg { width: 17px; height: 17px; }
-    .player-launch-copy { min-width: 0; }
-    .player-launch-copy strong, .player-launch-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .player-launch-copy strong { font-size: 13px; }
-    .player-launch-copy span { opacity: .82; font-size: 11px; font-weight: 500; }
-    .player-frame-wrap { padding: 0 22px 18px; }
+    .player-frame-wrap { padding: 16px 22px 18px; }
     .player-frame-wrap[hidden] { display: none; }
     .player-frame {
       display: block;
@@ -769,20 +734,8 @@
       padding-top: 9px;
     }
     .player-now { min-width: 0; color: var(--ink-soft); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .player-close {
-      flex: 0 0 auto;
-      border: 0;
-      padding: 4px 0;
-      color: var(--green);
-      background: transparent;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
     @media (prefers-color-scheme: dark) {
       .action.primary { color: #0b1813; }
-      .player-launch { color: #0b1813; }
-      .player-launch-icon { color: #0b1813; }
     }
     .lyrics-panel {
       position: relative;
@@ -1119,10 +1072,7 @@
       .lyrics-actions .icon-action { width: 36px; min-width: 36px; padding-inline: 5px; }
       .lyrics-actions .action svg { width: 14px; height: 14px; }
       .lyrics-actions .action .office-logo { width: 19px; height: 19px; }
-      .player-bar { align-items: stretch; padding: 12px 16px; }
-      .player-launch { grid-template-columns: 40px minmax(0, 1fr); }
-      .player-launch-icon { width: 40px; }
-      .player-frame-wrap { padding: 0 16px 14px; }
+      .player-frame-wrap { padding: 14px 16px; }
       .versions-head { padding: 12px 16px; }
       .version-list { padding: 0 16px 14px; }
       .lyrics-scroll { padding: 28px 22px 44px; }
@@ -1214,17 +1164,10 @@
           <span id="copyFeedback" class="copy-feedback" role="status" aria-live="polite"></span>
         </div>
         <section id="playerShell" class="player-shell" aria-label="የመዝሙር ማጫወቻ">
-          <div class="player-bar">
-            <button id="playInApp" class="player-launch" type="button" aria-expanded="false" aria-controls="playerFrameWrap">
-              <span class="player-launch-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 11 7-11 7Z"></path></svg></span>
-              <span class="player-launch-copy"><strong>እዚሁ ያጫውቱ</strong><span id="playerSelection">ዋናው መዝሙር</span></span>
-            </button>
-          </div>
           <div id="playerFrameWrap" class="player-frame-wrap" hidden>
             <iframe id="youtubePlayer" class="player-frame" title="የYouTube መዝሙር ማጫወቻ" loading="eager" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="origin" allowfullscreen></iframe>
             <div class="player-foot">
               <span id="playerNow" class="player-now"></span>
-              <button id="closePlayer" class="player-close" type="button">ማጫወቻውን ዝጋ</button>
             </div>
           </div>
         </section>
@@ -1354,7 +1297,6 @@
     const versionsPanel = document.getElementById('versionsPanel');
     const playerFrameWrap = document.getElementById('playerFrameWrap');
     const youtubePlayer = document.getElementById('youtubePlayer');
-    const playInApp = document.getElementById('playInApp');
     const publicPageUrl = 'https://worshipmezmur.com/';
     const pageSize = 24;
     const sortMode = 'album';
@@ -1362,7 +1304,6 @@
     let selectedId = null;
     let sharedSongId = null;
     let activeVideoIndex = 0;
-    let inlinePlayingId = null;
     let toastTimer = 0;
 
     function esc(value) {
@@ -1559,7 +1500,7 @@
     }
 
     function staticExportUrl(song, kind) {
-      if (kind === 'pptx') return `assets/pptx/${song.id}.pptx`;
+      if (kind === 'pptx') return `https://worshipmezmur.com/assets/pptx/${song.id}.pptx`;
       const baseName = safeFileName(song.titleEn || song.titleAm);
       return `assets/docx/${baseName}-Lyrics-Word.docx`;
     }
@@ -1642,7 +1583,7 @@
           : '';
         return `${albumHeading}
         <article id="song-${esc(song.id)}" class="song-card ${song.id === selectedId ? 'selected' : ''}" data-id="${esc(song.id)}">
-          ${hasVideo ? `<button class="thumb-link play-song" type="button" data-id="${esc(song.id)}" aria-label="${esc(song.titleAm)} እዚሁ ያጫውቱ" aria-expanded="${inlinePlayingId === song.id ? 'true' : 'false'}" aria-controls="inline-player-${esc(song.id)}">
+          ${hasVideo ? `<button class="thumb-link play-song" type="button" data-id="${esc(song.id)}" aria-label="${esc(song.titleAm)} ቪዲዮና ግጥም ክፈት">
             ${song.thumb ? `<img src="${esc(song.thumb)}" alt="${esc(song.titleAm)} የYouTube ቪዲዮ ምስል" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-youtube-thumb="true" />` : `<span class="song-fallback" aria-hidden="true">${icons.youtube}</span>`}
             <span class="play" aria-hidden="true">${icons.play}</span>
           </button>` : `<div class="thumb-link" aria-hidden="true"><span class="song-fallback">${icons.lyrics}</span></div>`}
@@ -1658,14 +1599,6 @@
               <button class="action office-action download-song" type="button" data-id="${esc(song.id)}" data-kind="pptx" aria-label="${esc(song.titleAm)} PowerPoint ያውርዱ" title="PowerPoint ያውርዱ"${hasLyrics ? '' : ' disabled aria-disabled="true"'}>${icons.powerpoint}</button>
             </div>
           </div>
-          ${hasVideo && inlinePlayingId === song.id ? `
-            <div class="inline-player" id="inline-player-${esc(song.id)}">
-              <iframe title="${esc(song.videos[0].label)} — የYouTube መዝሙር ማጫወቻ" src="${esc(youtubeEmbedUrl(song.videos[0].href))}" loading="eager" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="origin" allowfullscreen></iframe>
-              <div class="inline-player-foot">
-                <span>${esc(song.videos[0].label)}</span>
-                <button class="inline-player-stop" type="button" data-id="${esc(song.id)}">ማጫወቻውን ዝጋ</button>
-              </div>
-            </div>` : ''}
         </article>`;
       }).join('');
       listEl.querySelectorAll('.open-song').forEach(button => {
@@ -1690,22 +1623,7 @@
         button.addEventListener('click', () => exportSongFile(button.dataset.id, button.dataset.kind, button));
       });
       listEl.querySelectorAll('.play-song').forEach(button => {
-        button.addEventListener('click', () => {
-          inlinePlayingId = button.dataset.id;
-          selectSong(button.dataset.id, false, true);
-          requestAnimationFrame(() => {
-            const inlinePlayer = document.getElementById(`inline-player-${button.dataset.id}`);
-            if (inlinePlayer) inlinePlayer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          });
-        });
-      });
-      listEl.querySelectorAll('.inline-player-stop').forEach(button => {
-        button.addEventListener('click', () => {
-          inlinePlayingId = null;
-          renderList(searchEl.value);
-          const playButton = listEl.querySelector(`.play-song[data-id="${button.dataset.id}"]`);
-          if (playButton) playButton.focus();
-        });
+        button.addEventListener('click', () => selectSong(button.dataset.id, true));
       });
     }
 
@@ -1729,11 +1647,11 @@
       }
     }
 
-    function youtubeEmbedUrl(href) {
+    function youtubeEmbedUrl(href, autoplay = false) {
       const videoId = youtubeVideoId(href);
       if (!videoId) return '';
       const params = new URLSearchParams({
-        autoplay: '1',
+        autoplay: autoplay ? '1' : '0',
         playsinline: '1',
         rel: '0'
       });
@@ -1743,7 +1661,6 @@
     function stopPlayer() {
       youtubePlayer.removeAttribute('src');
       playerFrameWrap.hidden = true;
-      playInApp.setAttribute('aria-expanded', 'false');
     }
 
     function setActiveVideo(index, startPlaying = false) {
@@ -1751,34 +1668,25 @@
       if (!song || !song.videos[index]) return;
       activeVideoIndex = index;
       const video = song.videos[index];
-      document.getElementById('playerSelection').textContent = video.label;
       document.getElementById('playerNow').textContent = video.label;
       document.querySelectorAll('.version-link').forEach((button, buttonIndex) => {
         const isActive = buttonIndex === activeVideoIndex;
         button.classList.toggle('active', isActive);
         button.setAttribute('aria-pressed', String(isActive));
       });
-      if (startPlaying) {
-        const embedUrl = youtubeEmbedUrl(video.href);
-        if (!embedUrl) return;
-        if (inlinePlayingId !== null) {
-          inlinePlayingId = null;
-          renderList(searchEl.value);
-        }
-        youtubePlayer.title = `${video.label} — የYouTube መዝሙር ማጫወቻ`;
-        youtubePlayer.src = embedUrl;
-        playerFrameWrap.hidden = false;
-        playInApp.setAttribute('aria-expanded', 'true');
-        playerFrameWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      const embedUrl = youtubeEmbedUrl(video.href, startPlaying);
+      if (!embedUrl) return;
+      youtubePlayer.title = `${video.label} — የYouTube መዝሙር ማጫወቻ`;
+      youtubePlayer.src = embedUrl;
+      playerFrameWrap.hidden = false;
+      if (startPlaying) playerFrameWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function selectSong(id, openOnMobile = false, keepInlinePlayer = false) {
+    function selectSong(id, openOnMobile = false) {
       const song = songs.find(item => item.id === id);
       if (!song) return;
       selectedId = id;
       activeVideoIndex = 0;
-      if (!keepInlinePlayer) inlinePlayingId = null;
       stopPlayer();
       const hasLyrics = Boolean(song.lyrics.trim());
       const hasVideo = song.videos.length > 0;
@@ -2357,36 +2265,27 @@
     searchEl.addEventListener('input', event => {
       sharedSongId = null;
       visibleLimit = pageSize;
-      inlinePlayingId = null;
       renderList(event.target.value);
     });
     artistFilter.addEventListener('change', () => {
       sharedSongId = null;
       visibleLimit = pageSize;
-      inlinePlayingId = null;
       renderList(searchEl.value);
     });
     themeFilter.addEventListener('change', () => {
       sharedSongId = null;
       visibleLimit = pageSize;
-      inlinePlayingId = null;
       renderList(searchEl.value);
     });
     completeOnly.addEventListener('change', () => {
       sharedSongId = null;
       visibleLimit = pageSize;
-      inlinePlayingId = null;
       renderList(searchEl.value);
     });
     loadMore.addEventListener('click', () => {
       visibleLimit += pageSize;
       renderList(searchEl.value);
       loadMore.focus({ preventScroll: true });
-    });
-    playInApp.addEventListener('click', () => setActiveVideo(activeVideoIndex, true));
-    document.getElementById('closePlayer').addEventListener('click', () => {
-      stopPlayer();
-      playInApp.focus();
     });
     document.getElementById('closePanel').addEventListener('click', closePanel);
     document.getElementById('lyricsView').addEventListener('click', () => document.getElementById('lyricsScroll').scrollIntoView({ behavior: 'smooth', block: 'start' }));
