@@ -546,20 +546,70 @@
     .artist-choice strong { min-width: 0; font-size: 16px; line-height: 1.35; }
     .artist-choice span { color: var(--green); font-family: var(--font-en); font-size: 13px; }
     .artist-choice small { grid-column: 2; grid-row: 1 / 3; color: var(--ink-soft); font-size: 11px; white-space: nowrap; }
-    .load-more {
-      width: 100%;
-      min-height: 46px;
-      margin-top: 14px;
-      border: 1px solid var(--green);
-      border-radius: 8px;
-      color: var(--green);
-      background: transparent;
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .pagination[hidden] { display: none; }
+    .page-size-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    #pageSizeSelect {
+      min-height: 38px;
+      padding: 6px 30px 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--ink);
+      background-color: var(--surface);
+      cursor: pointer;
+    }
+    .page-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 5px;
+      min-width: 0;
+    }
+    .page-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      min-height: 38px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--ink);
+      background: var(--surface);
+      font-family: var(--font-en);
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
     }
-    .load-more[hidden] { display: none; }
-    .load-more:hover { color: #fff; background: var(--green); }
-    @media (prefers-color-scheme: dark) { .load-more:hover { color: #0b1813; } }
+    .page-button:hover:not(:disabled), .page-button[aria-current="page"] {
+      border-color: var(--green);
+      color: #fff;
+      background: var(--green);
+    }
+    .page-button:disabled { cursor: not-allowed; opacity: .42; }
+    .page-ellipsis {
+      min-width: 22px;
+      color: var(--ink-soft);
+      font-family: var(--font-en);
+      text-align: center;
+    }
+    @media (prefers-color-scheme: dark) {
+      .page-button:hover:not(:disabled), .page-button[aria-current="page"] { color: #0b1813; }
+    }
     .song-card {
       position: relative;
       display: grid;
@@ -1043,6 +1093,10 @@
       .content-toggle { width: auto; }
       .artist-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .artist-directory { grid-template-columns: minmax(0, 1fr); }
+      .pagination { align-items: stretch; flex-direction: column; }
+      .page-size-control { justify-content: space-between; }
+      .page-nav { justify-content: center; flex-wrap: wrap; }
+      .page-button { min-width: 36px; min-height: 36px; padding-inline: 8px; }
       .sort-tools { align-items: stretch; flex-direction: column; gap: 7px; }
       .sort-mode { width: 100%; }
       .sort-mode button { padding-inline: 7px; font-size: 12px; }
@@ -1140,7 +1194,17 @@
         <div id="artistStats" class="artist-stats" aria-live="polite" hidden></div>
         <div id="resultCount" class="result-count" aria-live="polite"></div>
         <div id="songList" class="song-list"></div>
-        <button id="loadMore" class="load-more" type="button" hidden></button>
+        <div id="pagination" class="pagination" aria-label="የመዝሙር ገጾች">
+          <label class="page-size-control" for="pageSizeSelect">
+            <span>በአንድ ገጽ</span>
+            <select id="pageSizeSelect" aria-label="በአንድ ገጽ የሚታዩ መዝሙሮች">
+              <option value="20">20</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+          <nav id="pageNav" class="page-nav" aria-label="የውጤት ገጾች"></nav>
+        </div>
         <div id="empty" class="empty">የሚዛመድ ውጤት አልተገኘም። ሌላ ቃል ይሞክሩ።</div>
       </section>
 
@@ -1302,7 +1366,9 @@
     const themeFilter = document.getElementById('themeFilter');
     const completeOnly = document.getElementById('completeOnly');
     const artistStats = document.getElementById('artistStats');
-    const loadMore = document.getElementById('loadMore');
+    const pagination = document.getElementById('pagination');
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    const pageNav = document.getElementById('pageNav');
     const resultCount = document.getElementById('resultCount');
     const catalogSongCountText = `${songs.length.toLocaleString()} መዝሙሮች`;
     resultCount.textContent = catalogSongCountText;
@@ -1312,9 +1378,9 @@
     const playerFrameWrap = document.getElementById('playerFrameWrap');
     const youtubePlayer = document.getElementById('youtubePlayer');
     const publicPageUrl = 'https://worshipmezmur.com/';
-    const pageSize = 24;
+    let pageSize = 50;
+    let currentPage = 1;
     const sortMode = 'album';
-    let visibleLimit = pageSize;
     let selectedId = null;
     let sharedSongId = null;
     let activeVideoIndex = 0;
@@ -1461,7 +1527,7 @@
     function renderArtistDirectory(groups) {
       resultCount.textContent = catalogSongCountText;
       emptyEl.classList.remove('visible');
-      loadMore.hidden = true;
+      pagination.hidden = true;
       listEl.className = 'artist-directory';
       listEl.innerHTML = groups.map(group => `
         <button class="artist-choice" type="button" data-artist="${esc(group.artistEn || group.artistAm)}">
@@ -1472,7 +1538,7 @@
       listEl.querySelectorAll('.artist-choice').forEach(button => {
         button.addEventListener('click', () => {
           searchEl.value = button.dataset.artist;
-          visibleLimit = pageSize;
+          currentPage = 1;
           renderList(searchEl.value);
           searchEl.focus({ preventScroll: true });
         });
@@ -1551,6 +1617,44 @@
       return new Blob([blob], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
     }
 
+    function paginationItems(totalPages, activePage) {
+      if (totalPages <= 7) return Array.from({ length: totalPages }, (_, index) => index + 1);
+      if (activePage <= 4) return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
+      if (activePage >= totalPages - 3) return [1, 'ellipsis', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      return [1, 'ellipsis', activePage - 1, activePage, activePage + 1, 'ellipsis', totalPages];
+    }
+
+    function renderPagination(totalItems) {
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      currentPage = Math.min(Math.max(1, currentPage), totalPages);
+      pagination.hidden = totalItems === 0;
+      pageSizeSelect.value = String(pageSize);
+      if (totalItems === 0) {
+        pageNav.innerHTML = '';
+        return;
+      }
+      const items = paginationItems(totalPages, currentPage);
+      pageNav.innerHTML = `
+        <button class="page-button" type="button" data-page="${currentPage - 1}" aria-label="Previous page"${currentPage === 1 ? ' disabled' : ''}>‹</button>
+        ${items.map(item => item === 'ellipsis'
+          ? '<span class="page-ellipsis" aria-hidden="true">…</span>'
+          : `<button class="page-button" type="button" data-page="${item}" aria-label="Page ${item}"${item === currentPage ? ' aria-current="page"' : ''}>${item}</button>`).join('')}
+        <button class="page-button" type="button" data-page="${currentPage + 1}" aria-label="Next page"${currentPage === totalPages ? ' disabled' : ''}>›</button>`;
+      pageNav.querySelectorAll('.page-button[data-page]').forEach(button => {
+        button.addEventListener('click', () => {
+          const requestedPage = Number(button.dataset.page);
+          if (!Number.isFinite(requestedPage) || requestedPage < 1 || requestedPage > totalPages || requestedPage === currentPage) return;
+          currentPage = requestedPage;
+          renderList(searchEl.value);
+          document.querySelector('.search-tools').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          requestAnimationFrame(() => {
+            const activeButton = pageNav.querySelector('[aria-current="page"]');
+            if (activeButton) activeButton.focus({ preventScroll: true });
+          });
+        });
+      });
+    }
+
     function renderList(query = '') {
       const normalized = normalizedText(query);
       const naturalThemes = naturalThemesForQuery(query);
@@ -1571,7 +1675,10 @@
         const hasCompleteContent = !completeOnly.checked || (song.videos.length > 0 && Boolean(song.lyrics.trim()));
         return matchesArtist && matchesTheme && matchesSearch && hasCompleteContent;
       }));
-      const visibleSongs = filtered.slice(0, visibleLimit);
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      currentPage = Math.min(Math.max(1, currentPage), totalPages);
+      const pageStart = (currentPage - 1) * pageSize;
+      const visibleSongs = filtered.slice(pageStart, pageStart + pageSize);
       const matchingArtists = new Set(filtered.map(song => normalizedText(song.artistAm)).filter(Boolean)).size;
       const themeLabel = themeFilter.value ? ` · ${themeFilter.value}` : '';
       const filteredLabel = completeOnly.checked ? ' · ግጥምና ቪዲዮ ያላቸው ብቻ' : '';
@@ -1581,9 +1688,7 @@
       renderArtistStats();
       emptyEl.classList.toggle('visible', filtered.length === 0);
       listEl.className = 'song-list';
-      const remaining = Math.max(0, filtered.length - visibleSongs.length);
-      loadMore.hidden = remaining === 0;
-      loadMore.textContent = `ተጨማሪ ${remaining.toLocaleString()} መዝሙሮችን አሳይ`;
+      renderPagination(filtered.length);
       listEl.innerHTML = visibleSongs.map((song, index) => {
         const hasLyrics = Boolean(song.lyrics.trim());
         const hasVideo = song.videos.length > 0;
@@ -1959,7 +2064,7 @@
       artistFilter.value = '';
       themeFilter.value = '';
       sharedSongId = song.id;
-      visibleLimit = pageSize;
+      currentPage = 1;
       selectSong(song.id);
       requestAnimationFrame(() => {
         const card = document.getElementById(`song-${song.id}`);
@@ -2278,28 +2383,29 @@
 
     searchEl.addEventListener('input', event => {
       sharedSongId = null;
-      visibleLimit = pageSize;
+      currentPage = 1;
       renderList(event.target.value);
     });
     artistFilter.addEventListener('change', () => {
       sharedSongId = null;
-      visibleLimit = pageSize;
+      currentPage = 1;
       renderList(searchEl.value);
     });
     themeFilter.addEventListener('change', () => {
       sharedSongId = null;
-      visibleLimit = pageSize;
+      currentPage = 1;
       renderList(searchEl.value);
     });
     completeOnly.addEventListener('change', () => {
       sharedSongId = null;
-      visibleLimit = pageSize;
+      currentPage = 1;
       renderList(searchEl.value);
     });
-    loadMore.addEventListener('click', () => {
-      visibleLimit += pageSize;
+    pageSizeSelect.addEventListener('change', () => {
+      const nextPageSize = Number(pageSizeSelect.value);
+      pageSize = [20, 50, 100].includes(nextPageSize) ? nextPageSize : 50;
+      currentPage = 1;
       renderList(searchEl.value);
-      loadMore.focus({ preventScroll: true });
     });
     document.getElementById('closePanel').addEventListener('click', closePanel);
     document.getElementById('lyricsView').addEventListener('click', () => document.getElementById('lyricsScroll').scrollIntoView({ behavior: 'smooth', block: 'start' }));
