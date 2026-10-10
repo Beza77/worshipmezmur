@@ -102,15 +102,15 @@ body{
 // NOTE: keep HG_VERSION in sync with habeshagames.com SITE_VERSION (bump on game updates)
 var HG_VERSION = '20261010c';
 var GAMES = [
-  { dir:'listen-party',           title:'Listen & Guess the Song',      am:'አድምጠው ገምት',            desc:'Hear the song clip, pick the answer!',              mode:'👥 Group' },
-  { dir:'guess-party',            title:'Read & Guess the Song',        am:'የቡድን ጨዋታ',              desc:'One host, everyone plays on their phone!',         mode:'👥 Group' },
-  { dir:'guess-the-game',         title:'Guess the Song',               am:'መዝሙር',                  desc:'Hear a clip, name the song.',                      mode:'👤 Solo' },
-  { dir:'guess-from-lyrics',      title:'Guess from the Lyrics',        am:'ከግጥሙ ገምት',              desc:'Read the lines, guess the song.',                   mode:'👤 Solo' },
-  { dir:'worship-song-bingo',     title:'Worship Song Bingo',           am:'የመዝሙር ብንጎ',             desc:'Mark each song, shout bingo!',                      mode:'👥 Group' },
+  { dir:'finish-the-lyrics-listen', title:'Listen & Finish the Lyrics', am:'ስማ ጨርስ',                desc:'Hear 10 seconds, then finish the lyric!',           mode:'👤 Solo' },
   { dir:'song-roulette',          title:'የመዝሙር እጣ (Song Roulette)',    am:'የመዝሙር እጣ',              desc:'Spin the wheel for your next worship song.',        mode:'👥 Group' },
+  { dir:'guess-the-game',         title:'Guess the Song',               am:'መዝሙር',                  desc:'Hear a clip, name the song.',                      mode:'👤 Solo' },
+  { dir:'listen-party',           title:'Listen & Guess the Song',      am:'አድምጠው ገምት',            desc:'Hear the song clip, pick the answer!',              mode:'👥 Group' },
+  { dir:'worship-song-bingo',     title:'Worship Song Bingo',           am:'የመዝሙር ብንጎ',             desc:'Mark each song, shout bingo!',                      mode:'👥 Group' },
+  { dir:'guess-from-lyrics',      title:'Guess from the Lyrics',        am:'ከግጥሙ ገምት',              desc:'Read the lines, guess the song.',                   mode:'👤 Solo' },
+  { dir:'guess-party',            title:'Read & Guess the Song',        am:'የቡድን ጨዋታ',              desc:'One host, everyone plays on their phone!',         mode:'👥 Group' },
   { dir:'finish-the-lyrics',      title:'Finish the Lyrics',            am:'የመዝሙሩን ቀጣይ መስመር',     desc:'Pick the next line, collect points.',               mode:'👤 Solo' },
-  { dir:'finish-lyrics-party',    title:'Finish the Lyrics Party',      am:'የቡድን ጨዋታ',              desc:'Host starts a room, everyone joins by code!',       mode:'👥 Group' },
-  { dir:'finish-the-lyrics-listen', title:'Listen & Finish the Lyrics', am:'ስማ ጨርስ',                desc:'Hear 10 seconds, then finish the lyric!',           mode:'👤 Solo' }
+  { dir:'finish-lyrics-party',    title:'Finish the Lyrics Party',      am:'የቡድን ጨዋታ',              desc:'Host starts a room, everyone joins by code!',       mode:'👥 Group' }
 ];
 var grid = document.getElementById('grid');
 GAMES.forEach(function(g){
