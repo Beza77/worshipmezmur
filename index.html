@@ -51,6 +51,7 @@ body{
 .card .am{font-size:19px; font-weight:800}
 .card .en{font-size:14px; color:var(--ink-soft); font-weight:600}
 .card .desc{font-size:14px; color:var(--ink-soft); margin:2px 0 8px}
+.card .amdesc{font-size:14px; color:var(--ink-soft); margin:2px 0 4px}
 .card .row{display:flex; align-items:center; justify-content:space-between; margin-top:auto}
 .badge{font-size:12px; font-weight:700; background:var(--green-faint); color:var(--green);
   border-radius:99px; padding:4px 10px}
@@ -103,7 +104,7 @@ body{
 // NOTE: keep HG_VERSION in sync with habeshagames.com SITE_VERSION (bump on game updates)
 var HG_VERSION = '20261010c';
 var GAMES = [
-  { dir:'finish-the-lyrics-listen', title:'Listen & Finish the Lyrics', am:'ስማ ጨርስ',                desc:'Hear 10 seconds, then finish the lyric!',           mode:'👤 Solo' },
+  { dir:'finish-the-lyrics-listen', title:'Listen & Finish the Lyrics', am:'ሰምቶ መጨረስ', amdesc:'10 ሰከንድ ስማ፣ ከዚያ ግጥሙን ጨርስ!', desc:'Hear 10 seconds, then finish the lyric!',           mode:'👤 Solo' },
   { dir:'song-roulette',          title:'የመዝሙር እጣ (Song Roulette)',    am:'የመዝሙር እጣ',              desc:'Spin the wheel for your next worship song.',        mode:'👥 Group' },
   { dir:'guess-the-game',         title:'Guess the Song',               am:'መዝሙር',                  desc:'Hear a clip, name the song.',                      mode:'👤 Solo' },
   { dir:'listen-party',           title:'Listen & Guess the Song',      am:'አድምጠው ገምት',            desc:'Hear the song clip, pick the answer!',              mode:'👥 Group' }
@@ -117,6 +118,7 @@ GAMES.forEach(function(g){
     '<div class="body">' +
       '<div class="am" lang="am">' + g.am + '</div>' +
       '<div class="en">' + g.title + '</div>' +
+      (g.amdesc ? '<div class="amdesc" lang="am">' + g.amdesc + '</div>' : '') +
       '<div class="desc">' + g.desc + '</div>' +
       '<div class="row"><span class="badge">' + g.mode + '</span>' +
       '<button class="play" type="button">▶ Play</button></div>' +
