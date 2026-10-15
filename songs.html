@@ -1044,6 +1044,7 @@ gtag('config', 'G-J90QD2SYRK');
       text-align: center;
     }
     .empty.visible { display: block; }
+    .hidden-by-song-panel { display: none !important; }
 
     @media (max-width: 1080px) {
       .workspace { grid-template-columns: minmax(0, 1fr); }
@@ -1141,7 +1142,7 @@ gtag('config', 'G-J90QD2SYRK');
         line-height: 1.25;
       }
       .card-actions .action svg { width: 14px; height: 14px; }
-      .lyrics-hero { grid-template-columns: 110px minmax(0, 1fr); gap: 14px; padding: 62px 16px 16px; }
+      .lyrics-hero { grid-template-columns: 110px minmax(0, 1fr); gap: 14px; padding: 16px; }
       .lyrics-title { font-size: 24px; }
       .lyrics-actions {
         grid-template-columns: minmax(0, 1fr) repeat(4, 36px);
@@ -1824,6 +1825,28 @@ gtag('config', 'G-J90QD2SYRK');
       if (startPlaying) playerFrameWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
+    function setMobileGamesControlHidden(hidden) {
+      const candidates = Array.from(document.querySelectorAll('a, button')).filter(control => {
+        if (panel.contains(control)) return false;
+        const label = (control.textContent || '').replace(/\s+/g, ' ').trim();
+        const href = control instanceof HTMLAnchorElement ? (control.getAttribute('href') || '') : '';
+        return label.includes('ጨዋታ') || /(?:^|\/)games?(?:\.html)?(?:[?#]|$)/i.test(href);
+      });
+      candidates.forEach(control => {
+        let target = control;
+        let ancestor = control.parentElement;
+        while (ancestor && ancestor !== document.body) {
+          const position = getComputedStyle(ancestor).position;
+          if (position === 'fixed' || position === 'sticky') {
+            target = ancestor;
+            break;
+          }
+          ancestor = ancestor.parentElement;
+        }
+        target.classList.toggle('hidden-by-song-panel', hidden);
+      });
+    }
+
     function selectSong(id, openOnMobile = false) {
       const song = songs.find(item => item.id === id);
       if (!song) return;
@@ -1879,6 +1902,7 @@ gtag('config', 'G-J90QD2SYRK');
       if (openOnMobile && window.matchMedia('(max-width: 1080px)').matches) {
         panel.classList.add('is-open');
         document.body.classList.add('panel-open');
+        setMobileGamesControlHidden(true);
         document.getElementById('closePanel').focus();
       }
     }
@@ -1887,6 +1911,7 @@ gtag('config', 'G-J90QD2SYRK');
       stopPlayer();
       panel.classList.remove('is-open');
       document.body.classList.remove('panel-open');
+      setMobileGamesControlHidden(false);
     }
 
     function selectedLyricsText() {
